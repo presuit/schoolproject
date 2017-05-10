@@ -11,9 +11,10 @@ public:
 	Pin(char pin, int setpow, int setdef) : type(pin), power(setpow), defence(setdef) {};
 
 	void move(Pin &target);
-	void battle();
+	void battle(Pin &loser);
 	void defeated();
 	bool get_is_move();
+	char get_type();
 
 	friend ostream& operator <<(ostream& os, const Pin& p);
 
@@ -33,21 +34,24 @@ void Pin::move(Pin &target)
 	temp.defence = defence;
 	temp.is_move = true;
 
-	cout << "temp.type : " << temp.type << ", temp.power : " << temp.power << ", temp.defence : " << temp.defence << "temp.ismove : " << temp.is_move << endl;
-
 	type = target.type;
 	power = target.power;
 	defence = target.defence;
 	is_move = target.is_move;
-	
-	cout << "type : " << type << ", power : " << power << ", defence : " << defence << ", ismove : " << is_move << endl;
 
 	target.type = temp.type;
 	target.power = temp.power;
 	target.defence = temp.defence;
 	target.is_move = temp.is_move;
-	
-	cout << "target.type  : " << target.type << "target.power : " << target.power << ", target.defence : " << target.defence << ", target.ismove : " << target.is_move << endl;
+}
+
+void Pin::battle(Pin &loser) 
+{
+}
+
+char Pin::get_type() 
+{
+	return type;
 }
 
 bool Pin::get_is_move() 
@@ -78,13 +82,14 @@ void print_stage();
 int main()
 {
 	int menu;
-	int x, y;
+	int x, y, x2, y2;
 	int whereto;
 	bool isright = false;
 
 		set_stage1();
 
-		while (Game_Mode != 4) 
+		Game_Mode = 2;
+		while (Game_Mode == 2) 
 		{
 			print_stage();
 			cout << "1. Move. 2. Battle 3. Submit" << endl;
@@ -92,6 +97,7 @@ int main()
 			switch (menu)
 			{
 			case 1:
+				//Move
 				cout << "Input target x, y coordinates" << endl;
 				cout << "X : ";
 				cin >> x;
@@ -164,7 +170,27 @@ int main()
 				}
 				break;
 			case 2:
-				cout << "hi I'm menu 2" << endl;
+				//Battle
+				cout << "Input attack U's x, y coordinates." << endl;
+				cout << "X : ";
+				cin >> x;
+				cout << "Y : ";
+				cin >> y;
+				if (game_board[x][y].get_type() != 'U') 
+				{
+					cout << "It is not U's position!" << endl;
+					continue;
+				}
+				cout << "Input attacked U's x, y coordinates." << endl;
+				cout << "X : ";
+				cin >> x2;
+				cout << "Y : ";
+				cin >> y2;
+				if (game_board[x2][y2].get_type() != 'U')
+				{
+					cout << "It is not U's position!" << endl;
+					continue;
+				}
 				break;
 			case 3:
 				cout << "hi I'm menu 3" << endl;
