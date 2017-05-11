@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <cstdlib>
 
 using namespace std;
 
@@ -56,23 +57,69 @@ void Pin::move(Pin &target)
 	target.is_move = temp.is_move;
 }
 
-void Pin::reset_power() 
+void Pin::battle(Pin &loser)
+{
+	int Class;
+	int pick;
+	bool isOk = false;
+
+	do 
+	{
+		cout << "select changed King's class" << endl;
+		cout << "1. Servant 2. People" << endl;
+		cin >> Class;
+
+		switch (Class)
+		{
+		case 1:
+				pick = rand() % 2;
+				if (pick == 0)
+				{
+					loser.type = 'S';
+					loser.pin = 'R';
+				}
+				else if (pick == 1)
+				{
+					loser.type = 'S';
+					loser.pin = 'E';
+				}
+				isOk = true;
+				break;
+		case 2:
+				pick = rand() % 2;
+				if (pick == 0)
+				{
+					loser.type = 'P';
+					loser.pin = 'T';
+				}
+				else if (pick == 1)
+				{
+					loser.type = 'P';
+					loser.pin = 'Y';
+				}
+				isOk = true;
+				break;
+		default:
+				cout << "It is not valid value!" << endl;
+				continue;
+		}
+	} while (isOk == false);
+	
+}
+
+void Pin::reset_power()
 {
 	power = 0;
 }
 
-void Pin::print_power() 
+void Pin::print_power()
 {
 	cout << "The power : " << power << endl;
 }
 
-void Pin::add_power() 
+void Pin::add_power()
 {
 	power += 1;
-}
-
-void Pin::battle(Pin &loser)
-{
 }
 
 char Pin::get_type()
@@ -249,56 +296,56 @@ int main()
 				continue;
 			}
 			//find People x, y
-			if (x-1 <= game_board.size() && y-1 <= game_board[x-1].size()) 
+			if (x - 1 <= game_board.size() && y - 1 <= game_board[x - 1].size())
 			{
 				if (game_board[x - 1][y - 1].get_type() == 'P')
 				{
 					game_board[x][y].add_power();
 				}
 			}
-			if (x-1 <= game_board.size() && y <= game_board[x-1].size()) 
+			if (x - 1 <= game_board.size() && y <= game_board[x - 1].size())
 			{
 				if (game_board[x - 1][y].get_type() == 'P')
 				{
 					game_board[x][y].add_power();
 				}
 			}
-			if (x-1 <= game_board.size() && y+1 <= game_board[x-1].size()) 
+			if (x - 1 <= game_board.size() && y + 1 <= game_board[x - 1].size())
 			{
 				if (game_board[x - 1][y + 1].get_type() == 'P')
 				{
 					game_board[x][y].add_power();
 				}
 			}
-			if (x <= game_board.size() && y-1 <= game_board[x].size()) 
+			if (x <= game_board.size() && y - 1 <= game_board[x].size())
 			{
 				if (game_board[x][y - 1].get_type() == 'P')
 				{
 					game_board[x][y].add_power();
 				}
 			}
-			if (x <= game_board.size() && y+1 <= game_board[x].size()) 
+			if (x <= game_board.size() && y + 1 <= game_board[x].size())
 			{
 				if (game_board[x][y + 1].get_type() == 'P')
 				{
 					game_board[x][y].add_power();
 				}
 			}
-			if (x+1 <= game_board.size() && y-1 <= game_board[x+1].size()) 
+			if (x + 1 <= game_board.size() && y - 1 <= game_board[x + 1].size())
 			{
 				if (game_board[x + 1][y - 1].get_type() == 'P')
 				{
 					game_board[x][y].add_power();
 				}
 			}
-			if (x+1 <= game_board.size() && y <= game_board[x+1].size()) 
+			if (x + 1 <= game_board.size() && y <= game_board[x + 1].size())
 			{
 				if (game_board[x + 1][y].get_type() == 'P')
 				{
 					game_board[x][y].add_power();
 				}
 			}
-			if (x+1 <= game_board.size() && y+1 <= game_board[x+1].size()) 
+			if (x + 1 <= game_board.size() && y + 1 <= game_board[x + 1].size())
 			{
 				if (game_board[x + 1][y + 1].get_type() == 'P')
 				{
@@ -363,17 +410,17 @@ int main()
 				}
 			}
 
-			if (game_board[x][y].get_power() > game_board[x2][y2].get_power()) 
+			if (game_board[x][y].get_power() > game_board[x2][y2].get_power())
 			{
 				game_board[x][y].battle(game_board[x2][y2]);
 			}
-			else if (game_board[x][y].get_power() < game_board[x2][y2].get_power()) 
+			else if (game_board[x][y].get_power() < game_board[x2][y2].get_power())
 			{
 				game_board[x2][y2].battle(game_board[x][y]);
 			}
-			else 
+			else
 			{
-				cout << "Both King's power are same so can't wage war!" << endl;
+				cout << "Both King's power are same , can't wage war" << endl;
 				game_board[x][y].reset_power();
 				game_board[x2][y2].reset_power();
 				continue;
