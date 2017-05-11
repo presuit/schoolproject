@@ -8,15 +8,20 @@ class Pin
 {
 public:
 	Pin() : Pin(' ', ' ', 0, 0) {};
-	Pin(char settype, char setpin, int setpow, int setdef) : type(settype), pin(setpin) ,power(setpow), defence(setdef) {};
+	Pin(char settype, char setpin, int setpow, int setdef) : type(settype), pin(setpin), power(setpow), defence(setdef) {};
 
 	void move(Pin &target);
 	void battle(Pin &loser);
 	void defeated();
+
 	bool get_is_move();
 	char get_type();
 	char get_pin();
 	int get_power();
+
+	void add_power();
+	void reset_power();
+	void print_power();//for test, before submit it, delete this
 
 	friend ostream& operator <<(ostream& os, const Pin& p);
 
@@ -28,7 +33,7 @@ private:
 	int defence;
 };
 
-void Pin::move(Pin &target) 
+void Pin::move(Pin &target)
 {
 	Pin temp;
 
@@ -51,31 +56,46 @@ void Pin::move(Pin &target)
 	target.is_move = temp.is_move;
 }
 
-void Pin::battle(Pin &loser) 
+void Pin::reset_power() 
+{
+	power = 0;
+}
+
+void Pin::print_power() 
+{
+	cout << "The power : " << power << endl;
+}
+
+void Pin::add_power() 
+{
+	power += 1;
+}
+
+void Pin::battle(Pin &loser)
 {
 }
 
-char Pin::get_type() 
+char Pin::get_type()
 {
 	return type;
 }
 
-char Pin::get_pin() 
+char Pin::get_pin()
 {
 	return pin;
 }
 
-bool Pin::get_is_move() 
+bool Pin::get_is_move()
 {
 	return is_move;
 }
 
-int Pin::get_power() 
+int Pin::get_power()
 {
 	return power;
 }
 
-ostream& operator <<(ostream& os, const Pin& p) 
+ostream& operator <<(ostream& os, const Pin& p)
 {
 	os << p.pin;
 	return os;
@@ -102,146 +122,273 @@ int main()
 	int whereto;
 	bool isright = false;
 
-		set_stage1();
+	set_stage1();
 
-		Game_Mode = 2;
-		while (Game_Mode == 2) 
+	Game_Mode = 2;
+	while (Game_Mode == 2)
+	{
+		print_stage();
+		cout << "1. Move. 2. Battle 3. Submit" << endl;
+		cin >> menu;
+		switch (menu)
 		{
-			print_stage();
-			cout << "1. Move. 2. Battle 3. Submit" << endl;
-			cin >> menu;
-			switch (menu)
+		case 1:
+			//Move
+			cout << "Input target x, y coordinates" << endl;
+			cout << "X : ";
+			cin >> x;
+			if (x > game_board.size())
 			{
-			case 1:
-				//Move
-				cout << "Input target x, y coordinates" << endl;
-				cout << "X : ";
-				cin >> x;
-				if (x > game_board.size()) 
-				{
-					cout << "It is not valid position!" << endl;
-					continue;
-				}
-				cout << "Y : ";
-				cin >> y;
-				if (y > game_board[0].size())
-				{
-					cout << "It is not valid position!" << endl;
-					continue;
-				}
-
-				if (game_board[x][y].get_is_move() == true) 
-				{
-					cout << "you already moved that Pin!" << endl;
-					continue;
-				}
-				cout << "you choose " << game_board[x][y] << ". where to move ?" << endl;
-				isright = false;
-				while (isright == false) 
-				{
-					cout << "1. Up  2. Left  3. Right  4. Down" << endl;
-					cin >> whereto;
-					switch (whereto)
-					{
-					case 1:
-						//up
-						if (x - 1 >= 0 && x - 1 < game_board.size())
-						{
-							game_board[x][y].move(game_board[x - 1][y]);
-							isright = true;
-						}
-						else
-						{
-							cout << "Not valid position!" << endl;
-						}
-						break;
-					case 2:
-						//left
-						if (y - 1 >= 0 && y - 1 < game_board[x].size())
-						{
-							game_board[x][y].move(game_board[x][y - 1]);
-							isright = true;
-						}
-						else
-						{
-							cout << "Not valid position!" << endl;
-						}
-						break;
-					case 3:
-						//right
-						if (y + 1 >= 0 && y + 1 < game_board[x].size())
-						{
-							game_board[x][y].move(game_board[x][y + 1]);
-							isright = true;
-						}
-						else
-						{
-							cout << "Not valid position!" << endl;
-						}
-						break;
-					case 4:
-						//down
-						if (x + 1 >= 0 && x + 1 < game_board.size())
-						{
-							game_board[x][y].move(game_board[x + 1][y]);
-							isright = true;
-						}
-						else
-						{
-							cout << "Not valid position!" << endl;
-						}
-						break;
-					default:
-						cout << "Input wrong answer please Input value again" << endl;
-					}
-				}
-				break;
-			case 2:
-				//Battle
-				cout << "Input attack U's x, y coordinates." << endl;
-				cout << "X : ";
-				cin >> x;
-				if (x > game_board.size())
-				{
-					cout << "It is not valid position!" << endl;
-					continue;
-				}
-				cout << "Y : ";
-				cin >> y;
-				if (y > game_board[0].size()) 
-				{
-					cout << "It is not valid position!" << endl;
-					continue;
-				}
-				if (game_board[x][y].get_type() != 'K') 
-				{
-					cout << "It is not U's position!" << endl;
-					continue;
-				}
-				cout << "Input attacked U's x, y coordinates." << endl;
-				cout << "X : ";
-				cin >> x2;
-				cout << "Y : ";
-				cin >> y2;
-				if (game_board[x2][y2].get_type() != 'K')
-				{
-					cout << "It is not U's position!" << endl;
-					continue;
-				}
-				
-				if (game_board[x-1][y-1].get_type() == 'P' ) 
-				{
-					
-				}
-				break;
-			case 3:
-				cout << "hi I'm menu 3" << endl;
-				break;
-			default:
-				cout << "input wrong answer please Input again" << endl;
+				cout << "It is not valid position!" << endl;
+				continue;
 			}
+			cout << "Y : ";
+			cin >> y;
+			if (y > game_board[0].size())
+			{
+				cout << "It is not valid position!" << endl;
+				continue;
+			}
+
+			if (game_board[x][y].get_is_move() == true)
+			{
+				cout << "you already moved that Pin!" << endl;
+				continue;
+			}
+			cout << "you choose " << game_board[x][y] << ". where to move ?" << endl;
+			isright = false;
+			while (isright == false)
+			{
+				cout << "1. Up  2. Left  3. Right  4. Down" << endl;
+				cin >> whereto;
+				switch (whereto)
+				{
+				case 1:
+					//up
+					if (x - 1 >= 0 && x - 1 < game_board.size())
+					{
+						game_board[x][y].move(game_board[x - 1][y]);
+						isright = true;
+					}
+					else
+					{
+						cout << "Not valid position!" << endl;
+					}
+					break;
+				case 2:
+					//left
+					if (y - 1 >= 0 && y - 1 < game_board[x].size())
+					{
+						game_board[x][y].move(game_board[x][y - 1]);
+						isright = true;
+					}
+					else
+					{
+						cout << "Not valid position!" << endl;
+					}
+					break;
+				case 3:
+					//right
+					if (y + 1 >= 0 && y + 1 < game_board[x].size())
+					{
+						game_board[x][y].move(game_board[x][y + 1]);
+						isright = true;
+					}
+					else
+					{
+						cout << "Not valid position!" << endl;
+					}
+					break;
+				case 4:
+					//down
+					if (x + 1 >= 0 && x + 1 < game_board.size())
+					{
+						game_board[x][y].move(game_board[x + 1][y]);
+						isright = true;
+					}
+					else
+					{
+						cout << "Not valid position!" << endl;
+					}
+					break;
+				default:
+					cout << "Input wrong answer please Input value again" << endl;
+				}
+			}
+			break;
+		case 2:
+			//Battle
+			cout << "Input attack U's x, y coordinates." << endl;
+			cout << "X : ";
+			cin >> x;
+			if (x > game_board.size())
+			{
+				cout << "It is not valid position!" << endl;
+				continue;
+			}
+			cout << "Y : ";
+			cin >> y;
+			if (y > game_board[0].size())
+			{
+				cout << "It is not valid position!" << endl;
+				continue;
+			}
+			if (game_board[x][y].get_type() != 'K')
+			{
+				cout << "It is not U's position!" << endl;
+				continue;
+			}
+			cout << "Input attacked U's x, y coordinates." << endl;
+			cout << "X : ";
+			cin >> x2;
+			cout << "Y : ";
+			cin >> y2;
+			if (game_board[x2][y2].get_type() != 'K')
+			{
+				cout << "It is not U's position!" << endl;
+				continue;
+			}
+			//find People x, y
+			if (x-1 <= game_board.size() && y-1 <= game_board[x-1].size()) 
+			{
+				if (game_board[x - 1][y - 1].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			if (x-1 <= game_board.size() && y <= game_board[x-1].size()) 
+			{
+				if (game_board[x - 1][y].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			if (x-1 <= game_board.size() && y+1 <= game_board[x-1].size()) 
+			{
+				if (game_board[x - 1][y + 1].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			if (x <= game_board.size() && y-1 <= game_board[x].size()) 
+			{
+				if (game_board[x][y - 1].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			if (x <= game_board.size() && y+1 <= game_board[x].size()) 
+			{
+				if (game_board[x][y + 1].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			if (x+1 <= game_board.size() && y-1 <= game_board[x+1].size()) 
+			{
+				if (game_board[x + 1][y - 1].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			if (x+1 <= game_board.size() && y <= game_board[x+1].size()) 
+			{
+				if (game_board[x + 1][y].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			if (x+1 <= game_board.size() && y+1 <= game_board[x+1].size()) 
+			{
+				if (game_board[x + 1][y + 1].get_type() == 'P')
+				{
+					game_board[x][y].add_power();
+				}
+			}
+			//x2, y2
+			if (x2 - 1 <= game_board.size() && y2 - 1 <= game_board[x2 - 1].size())
+			{
+				if (game_board[x2 - 1][y2 - 1].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+			if (x2 - 1 <= game_board.size() && y2 <= game_board[x2 - 1].size())
+			{
+				if (game_board[x2 - 1][y2].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+			if (x2 - 1 <= game_board.size() && y2 + 1 <= game_board[x2 - 1].size())
+			{
+				if (game_board[x2 - 1][y2 + 1].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+			if (x2 <= game_board.size() && y2 - 1 <= game_board[x2].size())
+			{
+				if (game_board[x2][y2 - 1].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+			if (x2 <= game_board.size() && y2 + 1 <= game_board[x2].size())
+			{
+				if (game_board[x2][y2 + 1].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+			if (x2 + 1 <= game_board.size() && y2 - 1 <= game_board[x2 + 1].size())
+			{
+				if (game_board[x2 + 1][y2 - 1].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+			if (x2 + 1 <= game_board.size() && y2 <= game_board[x2 + 1].size())
+			{
+				if (game_board[x2 + 1][y2].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+			if (x2 + 1 <= game_board.size() && y2 + 1 <= game_board[x2 + 1].size())
+			{
+				if (game_board[x2 + 1][y2 + 1].get_type() == 'P')
+				{
+					game_board[x2][y2].add_power();
+				}
+			}
+
+			if (game_board[x][y].get_power() > game_board[x2][y2].get_power()) 
+			{
+				game_board[x][y].battle(game_board[x2][y2]);
+			}
+			else if (game_board[x][y].get_power() < game_board[x2][y2].get_power()) 
+			{
+				game_board[x2][y2].battle(game_board[x][y]);
+			}
+			else 
+			{
+				cout << "Both King's power are same so can't wage war!" << endl;
+				game_board[x][y].reset_power();
+				game_board[x2][y2].reset_power();
+				continue;
+			}
+			game_board[x][y].reset_power();
+			game_board[x2][y2].reset_power();
+			break;
+		case 3:
+			cout << "hi I'm menu 3" << endl;
+			break;
+		default:
+			cout << "input wrong answer please Input again" << endl;
 		}
-			
+	}
+
 	return 0;
 }
 
@@ -253,7 +400,7 @@ void set_stage1()
 		game_board.push_back(_game_board);
 	}
 
-	game_board[0].push_back(Pin('P', 'T', 1, 0));
+	game_board[0].push_back(Pin('K', 'U', 0, 0));
 	game_board[0].push_back(Pin('S', 'R', 0, 0));
 	game_board[0].push_back(Pin('P', 'T', 1, 0));
 	game_board[0].push_back(Pin('P', 'Y', 1, 0));
@@ -274,8 +421,9 @@ void set_stage1()
 	game_board[3].push_back(Pin('S', 'R', 0, 0));
 }
 
-void print_stage() 
+void print_stage()
 {
+	cout << endl;
 	for (int i = 0; i < game_board.size(); i++)
 	{
 		for (int j = 0; j < game_board[i].size(); j++)
@@ -284,4 +432,5 @@ void print_stage()
 		}
 		cout << endl;
 	}
+	cout << endl;
 }
