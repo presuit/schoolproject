@@ -7,20 +7,23 @@ using namespace std;
 class Pin
 {
 public:
-	Pin() : Pin(' ', 0, 0) {};
-	Pin(char pin, int setpow, int setdef) : type(pin), power(setpow), defence(setdef) {};
+	Pin() : Pin(' ', ' ', 0, 0) {};
+	Pin(char settype, char setpin, int setpow, int setdef) : type(settype), pin(setpin) ,power(setpow), defence(setdef) {};
 
 	void move(Pin &target);
 	void battle(Pin &loser);
 	void defeated();
 	bool get_is_move();
 	char get_type();
+	char get_pin();
+	int get_power();
 
 	friend ostream& operator <<(ostream& os, const Pin& p);
 
 private:
 	bool is_move = false;
-	char type; // u, re, ty
+	char pin; // U RE TY
+	char type; // King, Servant, People
 	int power;
 	int defence;
 };
@@ -30,16 +33,19 @@ void Pin::move(Pin &target)
 	Pin temp;
 
 	temp.type = type;
+	temp.pin = pin;
 	temp.power = power;
 	temp.defence = defence;
 	temp.is_move = true;
 
 	type = target.type;
+	pin = target.pin;
 	power = target.power;
 	defence = target.defence;
 	is_move = target.is_move;
 
 	target.type = temp.type;
+	target.pin = temp.pin;
 	target.power = temp.power;
 	target.defence = temp.defence;
 	target.is_move = temp.is_move;
@@ -54,14 +60,24 @@ char Pin::get_type()
 	return type;
 }
 
+char Pin::get_pin() 
+{
+	return pin;
+}
+
 bool Pin::get_is_move() 
 {
 	return is_move;
 }
 
+int Pin::get_power() 
+{
+	return power;
+}
+
 ostream& operator <<(ostream& os, const Pin& p) 
 {
-	os << p.type;
+	os << p.pin;
 	return os;
 }
 
@@ -101,8 +117,18 @@ int main()
 				cout << "Input target x, y coordinates" << endl;
 				cout << "X : ";
 				cin >> x;
+				if (x > game_board.size()) 
+				{
+					cout << "It is not valid position!" << endl;
+					continue;
+				}
 				cout << "Y : ";
 				cin >> y;
+				if (y > game_board[0].size())
+				{
+					cout << "It is not valid position!" << endl;
+					continue;
+				}
 
 				if (game_board[x][y].get_is_move() == true) 
 				{
@@ -110,6 +136,7 @@ int main()
 					continue;
 				}
 				cout << "you choose " << game_board[x][y] << ". where to move ?" << endl;
+				isright = false;
 				while (isright == false) 
 				{
 					cout << "1. Up  2. Left  3. Right  4. Down" << endl;
@@ -174,9 +201,19 @@ int main()
 				cout << "Input attack U's x, y coordinates." << endl;
 				cout << "X : ";
 				cin >> x;
+				if (x > game_board.size())
+				{
+					cout << "It is not valid position!" << endl;
+					continue;
+				}
 				cout << "Y : ";
 				cin >> y;
-				if (game_board[x][y].get_type() != 'U') 
+				if (y > game_board[0].size()) 
+				{
+					cout << "It is not valid position!" << endl;
+					continue;
+				}
+				if (game_board[x][y].get_type() != 'K') 
 				{
 					cout << "It is not U's position!" << endl;
 					continue;
@@ -186,10 +223,15 @@ int main()
 				cin >> x2;
 				cout << "Y : ";
 				cin >> y2;
-				if (game_board[x2][y2].get_type() != 'U')
+				if (game_board[x2][y2].get_type() != 'K')
 				{
 					cout << "It is not U's position!" << endl;
 					continue;
+				}
+				
+				if (game_board[x-1][y-1].get_type() == 'P' ) 
+				{
+					
 				}
 				break;
 			case 3:
@@ -211,25 +253,25 @@ void set_stage1()
 		game_board.push_back(_game_board);
 	}
 
-	game_board[0].push_back(Pin('T', 1, 0));
-	game_board[0].push_back(Pin('R', 0, 0));
-	game_board[0].push_back(Pin('T', 1, 0));
-	game_board[0].push_back(Pin('Y', 1, 0));
+	game_board[0].push_back(Pin('P', 'T', 1, 0));
+	game_board[0].push_back(Pin('S', 'R', 0, 0));
+	game_board[0].push_back(Pin('P', 'T', 1, 0));
+	game_board[0].push_back(Pin('P', 'Y', 1, 0));
 
-	game_board[1].push_back(Pin('T', 1, 0));
-	game_board[1].push_back(Pin('R', 0, 0));
-	game_board[1].push_back(Pin('U', 0, 0));
-	game_board[1].push_back(Pin('R', 0, 0));
+	game_board[1].push_back(Pin('P', 'T', 1, 0));
+	game_board[1].push_back(Pin('S', 'R', 0, 0));
+	game_board[1].push_back(Pin('K', 'U', 0, 0));
+	game_board[1].push_back(Pin('S', 'R', 0, 0));
 
-	game_board[2].push_back(Pin('E', 0, 0));
-	game_board[2].push_back(Pin('U', 0, 0));
-	game_board[2].push_back(Pin('E', 0, 0));
-	game_board[2].push_back(Pin('Y', 1, 0));
+	game_board[2].push_back(Pin('S', 'E', 0, 0));
+	game_board[2].push_back(Pin('K', 'U', 0, 0));
+	game_board[2].push_back(Pin('S', 'E', 0, 0));
+	game_board[2].push_back(Pin('P', 'Y', 1, 0));
 
-	game_board[3].push_back(Pin('Y', 1, 0));
-	game_board[3].push_back(Pin('R', 0, 0));
-	game_board[3].push_back(Pin('Y', 1, 0));
-	game_board[3].push_back(Pin('R', 0, 0));
+	game_board[3].push_back(Pin('P', 'Y', 1, 0));
+	game_board[3].push_back(Pin('S', 'R', 0, 0));
+	game_board[3].push_back(Pin('P', 'Y', 1, 0));
+	game_board[3].push_back(Pin('S', 'R', 0, 0));
 }
 
 void print_stage() 
