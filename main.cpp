@@ -2,8 +2,13 @@
 #include <vector>
 #include <iomanip>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
 using namespace std;
+using namespace std::this_thread;     // sleep_for, sleep_until
+using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
+using std::chrono::system_clock;
 
 class Pin
 {
@@ -13,7 +18,6 @@ public:
 
 	void move(Pin &target);
 	void battle(Pin &loser);
-	void defeated();
 
 	bool get_is_move();
 	char get_type();
@@ -63,8 +67,10 @@ void Pin::battle(Pin &loser)
 	int pick;
 	bool isOk = false;
 
-	do 
+	do
 	{
+		cout << endl;
+		cout << "Battle end" << endl;
 		cout << "select changed King's class" << endl;
 		cout << "1. Servant 2. People" << endl;
 		cin >> Class;
@@ -72,39 +78,39 @@ void Pin::battle(Pin &loser)
 		switch (Class)
 		{
 		case 1:
-				pick = rand() % 2;
-				if (pick == 0)
-				{
-					loser.type = 'S';
-					loser.pin = 'R';
-				}
-				else if (pick == 1)
-				{
-					loser.type = 'S';
-					loser.pin = 'E';
-				}
-				isOk = true;
-				break;
+			pick = rand() % 2;
+			if (pick == 0)
+			{
+				loser.type = 'S';
+				loser.pin = 'R';
+			}
+			else if (pick == 1)
+			{
+				loser.type = 'S';
+				loser.pin = 'E';
+			}
+			isOk = true;
+			break;
 		case 2:
-				pick = rand() % 2;
-				if (pick == 0)
-				{
-					loser.type = 'P';
-					loser.pin = 'T';
-				}
-				else if (pick == 1)
-				{
-					loser.type = 'P';
-					loser.pin = 'Y';
-				}
-				isOk = true;
-				break;
+			pick = rand() % 2;
+			if (pick == 0)
+			{
+				loser.type = 'P';
+				loser.pin = 'T';
+			}
+			else if (pick == 1)
+			{
+				loser.type = 'P';
+				loser.pin = 'Y';
+			}
+			isOk = true;
+			break;
 		default:
-				cout << "It is not valid value!" << endl;
-				continue;
+			cout << "It is not valid value!" << endl;
+			continue;
 		}
 	} while (isOk == false);
-	
+
 }
 
 void Pin::reset_power()
@@ -151,326 +157,536 @@ ostream& operator <<(ostream& os, const Pin& p)
 vector <vector<Pin>> game_board;
 vector <Pin> _game_board;
 
-const int PRE_GAME = 0;
-const int READY_GAME = 1;
-const int IN_GAME = 2;
-const int OUT_OF_GAME = 3;
-const int END_GAME = 4;
+const int PRE_GAME = 1;
+const int READY_GAME = 2;
+const int IN_GAME = 3;
+const int OUT_OF_GAME = 4;
+const int END_GAME = 5;
 
-int Game_Mode = 0;
+int Game_Mode = 1;
+int STAGE = 1;
 
-void set_stage1();
+void set_stageN();
 void print_stage();
+void check_stage();
+
+int move();
+int battle();
 
 int main()
 {
 	int menu;
-	int x, y, x2, y2;
-	int whereto;
-	bool isright = false;
+	int varMove;
+	int varBattle;
+	
+	bool endGame = false;
 
-	set_stage1();
-
-	Game_Mode = 2;
-	while (Game_Mode == 2)
+	while (endGame == false) 
 	{
-		print_stage();
-		cout << "1. Move. 2. Battle 3. Submit" << endl;
-		cin >> menu;
-		switch (menu)
+		switch (Game_Mode)
 		{
 		case 1:
-			//Move
-			cout << "Input target x, y coordinates" << endl;
-			cout << "X : ";
-			cin >> x;
-			if (x > game_board.size())
-			{
-				cout << "It is not valid position!" << endl;
-				continue;
-			}
-			cout << "Y : ";
-			cin >> y;
-			if (y > game_board[0].size())
-			{
-				cout << "It is not valid position!" << endl;
-				continue;
-			}
-
-			if (game_board[x][y].get_is_move() == true)
-			{
-				cout << "you already moved that Pin!" << endl;
-				continue;
-			}
-			cout << "you choose " << game_board[x][y] << ". where to move ?" << endl;
-			isright = false;
-			while (isright == false)
-			{
-				cout << "1. Up  2. Left  3. Right  4. Down" << endl;
-				cin >> whereto;
-				switch (whereto)
-				{
-				case 1:
-					//up
-					if (x - 1 >= 0 && x - 1 < game_board.size())
-					{
-						game_board[x][y].move(game_board[x - 1][y]);
-						isright = true;
-					}
-					else
-					{
-						cout << "Not valid position!" << endl;
-					}
-					break;
-				case 2:
-					//left
-					if (y - 1 >= 0 && y - 1 < game_board[x].size())
-					{
-						game_board[x][y].move(game_board[x][y - 1]);
-						isright = true;
-					}
-					else
-					{
-						cout << "Not valid position!" << endl;
-					}
-					break;
-				case 3:
-					//right
-					if (y + 1 >= 0 && y + 1 < game_board[x].size())
-					{
-						game_board[x][y].move(game_board[x][y + 1]);
-						isright = true;
-					}
-					else
-					{
-						cout << "Not valid position!" << endl;
-					}
-					break;
-				case 4:
-					//down
-					if (x + 1 >= 0 && x + 1 < game_board.size())
-					{
-						game_board[x][y].move(game_board[x + 1][y]);
-						isright = true;
-					}
-					else
-					{
-						cout << "Not valid position!" << endl;
-					}
-					break;
-				default:
-					cout << "Input wrong answer please Input value again" << endl;
-				}
-			}
+			//PRE_GAME
+			//도입부 게임 인트로 장면 삽입부.
+			//UI 개선 시간때 삽입 예졍
+			Game_Mode = 2;
 			break;
 		case 2:
-			//Battle
-			cout << "Input attack U's x, y coordinates." << endl;
-			cout << "X : ";
-			cin >> x;
-			if (x > game_board.size())
+			//READY_GAME
+			set_stageN();
+			Game_Mode = 3;
+			break;
+		case 3:
+			//IN_GAME
+			while (Game_Mode == 3)
 			{
-				cout << "It is not valid position!" << endl;
-				continue;
-			}
-			cout << "Y : ";
-			cin >> y;
-			if (y > game_board[0].size())
-			{
-				cout << "It is not valid position!" << endl;
-				continue;
-			}
-			if (game_board[x][y].get_type() != 'K')
-			{
-				cout << "It is not U's position!" << endl;
-				continue;
-			}
-			cout << "Input attacked U's x, y coordinates." << endl;
-			cout << "X : ";
-			cin >> x2;
-			cout << "Y : ";
-			cin >> y2;
-			if (game_board[x2][y2].get_type() != 'K')
-			{
-				cout << "It is not U's position!" << endl;
-				continue;
-			}
-			//find People x, y
-			if (x - 1 <= game_board.size() && y - 1 <= game_board[x - 1].size())
-			{
-				if (game_board[x - 1][y - 1].get_type() == 'P')
+				print_stage();
+				cout << "=======================" << endl;
+				cout << "1. Move. 2. Battle" << endl;
+				cout << "=======================" << endl;
+				cout << "Menu (1~2) : ";
+				cin >> menu;
+				switch (menu)
 				{
-					game_board[x][y].add_power();
+				case 1:
+					//Move
+					varMove = move();
+					if (varMove == 1)
+						continue;
+					break;
+				case 2:
+					//Battle
+					varBattle = battle();
+					if (varBattle == 1)
+						continue;
+					break;
+				default:
+					cout << endl;
+					cout << "Input wrong answer please Input again" << endl;
 				}
+				check_stage();
 			}
-			if (x - 1 <= game_board.size() && y <= game_board[x - 1].size())
+			break;
+		case 4:
+			//OUT_OF_GAME
+			STAGE++;
+			game_board.clear();
+			if (STAGE == 3)
 			{
-				if (game_board[x - 1][y].get_type() == 'P')
-				{
-					game_board[x][y].add_power();
-				}
+				Game_Mode = 5;
 			}
-			if (x - 1 <= game_board.size() && y + 1 <= game_board[x - 1].size())
-			{
-				if (game_board[x - 1][y + 1].get_type() == 'P')
-				{
-					game_board[x][y].add_power();
-				}
-			}
-			if (x <= game_board.size() && y - 1 <= game_board[x].size())
-			{
-				if (game_board[x][y - 1].get_type() == 'P')
-				{
-					game_board[x][y].add_power();
-				}
-			}
-			if (x <= game_board.size() && y + 1 <= game_board[x].size())
-			{
-				if (game_board[x][y + 1].get_type() == 'P')
-				{
-					game_board[x][y].add_power();
-				}
-			}
-			if (x + 1 <= game_board.size() && y - 1 <= game_board[x + 1].size())
-			{
-				if (game_board[x + 1][y - 1].get_type() == 'P')
-				{
-					game_board[x][y].add_power();
-				}
-			}
-			if (x + 1 <= game_board.size() && y <= game_board[x + 1].size())
-			{
-				if (game_board[x + 1][y].get_type() == 'P')
-				{
-					game_board[x][y].add_power();
-				}
-			}
-			if (x + 1 <= game_board.size() && y + 1 <= game_board[x + 1].size())
-			{
-				if (game_board[x + 1][y + 1].get_type() == 'P')
-				{
-					game_board[x][y].add_power();
-				}
-			}
-			//x2, y2
-			if (x2 - 1 <= game_board.size() && y2 - 1 <= game_board[x2 - 1].size())
-			{
-				if (game_board[x2 - 1][y2 - 1].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
-			if (x2 - 1 <= game_board.size() && y2 <= game_board[x2 - 1].size())
-			{
-				if (game_board[x2 - 1][y2].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
-			if (x2 - 1 <= game_board.size() && y2 + 1 <= game_board[x2 - 1].size())
-			{
-				if (game_board[x2 - 1][y2 + 1].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
-			if (x2 <= game_board.size() && y2 - 1 <= game_board[x2].size())
-			{
-				if (game_board[x2][y2 - 1].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
-			if (x2 <= game_board.size() && y2 + 1 <= game_board[x2].size())
-			{
-				if (game_board[x2][y2 + 1].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
-			if (x2 + 1 <= game_board.size() && y2 - 1 <= game_board[x2 + 1].size())
-			{
-				if (game_board[x2 + 1][y2 - 1].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
-			if (x2 + 1 <= game_board.size() && y2 <= game_board[x2 + 1].size())
-			{
-				if (game_board[x2 + 1][y2].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
-			if (x2 + 1 <= game_board.size() && y2 + 1 <= game_board[x2 + 1].size())
-			{
-				if (game_board[x2 + 1][y2 + 1].get_type() == 'P')
-				{
-					game_board[x2][y2].add_power();
-				}
-			}
+			Game_Mode = 2;
+			break;
+		case 5:
+			//END_GAME
+			cout << endl;
+			cout << "You got True Eye! Congratulation " << endl;
+			cout << endl;
+			endGame = true;
+			break;
+		}
+	}
+	return 0;
+}
 
-			if (game_board[x][y].get_power() > game_board[x2][y2].get_power())
+
+int move() 
+{
+	int x, y, whereto;
+	bool isright = false;
+
+	cout << endl;
+	cout << "Input target x, y coordinates" << endl;
+	cout << "X : ";
+	cin >> x;
+	if (x > game_board.size())
+	{
+		cout << endl;
+		cout << "It is not valid position!" << endl;
+		return 1;
+	}
+	cout << "Y : ";
+	cin >> y;
+	if (y > game_board[x].size())
+	{
+		cout << endl;
+		cout << "It is not valid position!" << endl;
+		return 1;
+	}
+	if (game_board[x][y].get_type() == 'K') 
+	{
+		cout << endl;
+		cout << "You can't move King!" << endl;
+		return 1;
+	}
+	if (game_board[x][y].get_is_move() == true)
+	{
+		cout << endl;
+		cout << "you already moved that Pin!" << endl;
+		return 1;
+	}
+	cout << endl;
+	cout << "you choose " << game_board[x][y] << ". where to move ?" << endl;
+	isright = false;
+	while (isright == false)
+	{
+		cout << "===================================" << endl;
+		cout << "1. Up  2. Left  3. Right  4. Down" << endl;
+		cout << "===================================" << endl;
+		cin >> whereto;
+		switch (whereto)
+		{
+		case 1:
+			//up
+			if (x - 1 >= 0 && x - 1 < game_board.size())
 			{
-				game_board[x][y].battle(game_board[x2][y2]);
-			}
-			else if (game_board[x][y].get_power() < game_board[x2][y2].get_power())
-			{
-				game_board[x2][y2].battle(game_board[x][y]);
+				if (game_board[x-1][y].get_type() == 'K') 
+				{
+					cout << endl;
+					cout << "You can't move King!" << endl;
+					continue;
+				}
+				game_board[x][y].move(game_board[x - 1][y]);
+				isright = true;
 			}
 			else
 			{
-				cout << "Both King's power are same , can't wage war" << endl;
-				game_board[x][y].reset_power();
-				game_board[x2][y2].reset_power();
-				continue;
+				cout << endl;
+				cout << "Not valid position!" << endl;
 			}
-			game_board[x][y].reset_power();
-			game_board[x2][y2].reset_power();
+			break;
+		case 2:
+			//left
+			if (y - 1 >= 0 && y - 1 < game_board[x].size())
+			{
+				if (game_board[x][y-1].get_type() == 'K')
+				{
+					cout << endl;
+					cout << "You can't move King!" << endl;
+					continue;
+				}
+				game_board[x][y].move(game_board[x][y - 1]);
+				isright = true;
+			}
+			else
+			{
+				cout << endl;
+				cout << "Not valid position!" << endl;
+			}
 			break;
 		case 3:
-			cout << "hi I'm menu 3" << endl;
+			//right
+			if (y + 1 >= 0 && y + 1 < game_board[x].size())
+			{
+				if (game_board[x][y+1].get_type() == 'K')
+				{
+					cout << endl;
+					cout << "You can't move King!" << endl;
+					continue;
+				}
+				game_board[x][y].move(game_board[x][y + 1]);
+				isright = true;
+			}
+			else
+			{
+				cout << endl;
+				cout << "Not valid position!" << endl;
+			}
+			break;
+		case 4:
+			//down
+			if (x + 1 >= 0 && x + 1 < game_board.size())
+			{
+				if (game_board[x+1][y].get_type() == 'K')
+				{
+					cout << endl;
+					cout << "You can't move King!" << endl;
+					continue;
+				}
+				game_board[x][y].move(game_board[x + 1][y]);
+				isright = true;
+			}
+			else
+			{
+				cout << endl;
+				cout << "Not valid position!" << endl;
+			}
 			break;
 		default:
-			cout << "input wrong answer please Input again" << endl;
+			cout << endl;
+			cout << "Input wrong answer please Input value again" << endl;
 		}
 	}
 
 	return 0;
 }
 
-
-void set_stage1()
+int battle()
 {
-	for (int i = 0; i < 4; i++)
+	int x, y, x2, y2;
+	bool canIWage = false;
+
+	cout << endl;
+	cout << "Input attack U's x, y coordinates." << endl;
+	cout << "X : ";
+	cin >> x;
+	if (x > game_board.size())
 	{
-		game_board.push_back(_game_board);
+		cout << endl;
+		cout << "It is not valid position!" << endl;
+		return 1;
+	}
+	cout << "Y : ";
+	cin >> y;
+	if (y > game_board[x].size())
+	{
+		cout << endl;
+		cout << "It is not valid position!" << endl;
+		return 1;
+	}
+	if (game_board[x][y].get_type() != 'K')
+	{
+		cout << endl;
+		cout << "It is not U's position!" << endl;
+		return 1;
+	}
+	cout << endl;
+	cout << "Input attacked U's x, y coordinates." << endl;
+	cout << "X : ";
+	cin >> x2;
+	cout << "Y : ";
+	cin >> y2;
+	if (game_board[x2][y2].get_type() != 'K')
+	{
+		cout << endl;
+		cout << "It is not U's position!" << endl;
+		return 1;
+	}
+	//check can wage battle  
+	if (x - 1 <= game_board.size() && y - 1 <= game_board[x - 1].size())
+	{
+		if (game_board[x - 1][y - 1].get_type() == 'K')
+		{
+			canIWage = true;
+		}
+	}
+	if (x - 1 <= game_board.size() && y <= game_board[x - 1].size())
+	{
+		if (game_board[x - 1][y].get_type() == 'K')
+		{
+			canIWage = true;
+		}
+	}
+	if (x - 1 <= game_board.size() && y + 1 <= game_board[x - 1].size())
+	{
+		if (game_board[x - 1][y + 1].get_type() == 'K')
+		{
+			canIWage = true;
+		}
+	}
+	if (x <= game_board.size() && y - 1 <= game_board[x].size())
+	{
+		if (game_board[x][y - 1].get_type() == 'K')
+		{
+			canIWage = true;
+		}
+	}
+	if (x <= game_board.size() && y + 1 <= game_board[x].size())
+	{
+		if (game_board[x][y + 1].get_type() == 'K')
+		{
+			canIWage = true;
+		}
+	}
+	if (x + 1 <= game_board.size() && y - 1 <= game_board[x + 1].size())
+	{
+		if (game_board[x + 1][y - 1].get_type() == 'K')
+		{
+			canIWage = true;
+		}
+	}
+	if (x + 1 <= game_board.size() && y <= game_board[x + 1].size())
+	{
+		if (game_board[x + 1][y].get_type() == 'K')
+		{
+			canIWage = true;
+		}
+	}
+	if (x + 1 <= game_board.size() && y + 1 <= game_board[x + 1].size())
+	{
+		if (game_board[x + 1][y + 1].get_type() == 'K')
+		{
+			canIWage = true;
+		}
 	}
 
-	game_board[0].push_back(Pin('K', 'U', 0, 0));
-	game_board[0].push_back(Pin('S', 'R', 0, 0));
-	game_board[0].push_back(Pin('P', 'T', 1, 0));
-	game_board[0].push_back(Pin('P', 'Y', 1, 0));
+	if (canIWage == true) 
+	{
+		//find People x, y
+		if (x - 1 <= game_board.size() && y - 1 <= game_board[x - 1].size())
+		{
+			if (game_board[x - 1][y - 1].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		if (x - 1 <= game_board.size() && y <= game_board[x - 1].size())
+		{
+			if (game_board[x - 1][y].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		if (x - 1 <= game_board.size() && y + 1 <= game_board[x - 1].size())
+		{
+			if (game_board[x - 1][y + 1].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		if (x <= game_board.size() && y - 1 <= game_board[x].size())
+		{
+			if (game_board[x][y - 1].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		if (x <= game_board.size() && y + 1 <= game_board[x].size())
+		{
+			if (game_board[x][y + 1].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		if (x + 1 <= game_board.size() && y - 1 <= game_board[x + 1].size())
+		{
+			if (game_board[x + 1][y - 1].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		if (x + 1 <= game_board.size() && y <= game_board[x + 1].size())
+		{
+			if (game_board[x + 1][y].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		if (x + 1 <= game_board.size() && y + 1 <= game_board[x + 1].size())
+		{
+			if (game_board[x + 1][y + 1].get_type() == 'P')
+			{
+				game_board[x][y].add_power();
+			}
+		}
+		//x2, y2
+		if (x2 - 1 <= game_board.size() && y2 - 1 <= game_board[x2 - 1].size())
+		{
+			if (game_board[x2 - 1][y2 - 1].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
+		if (x2 - 1 <= game_board.size() && y2 <= game_board[x2 - 1].size())
+		{
+			if (game_board[x2 - 1][y2].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
+		if (x2 - 1 <= game_board.size() && y2 + 1 <= game_board[x2 - 1].size())
+		{
+			if (game_board[x2 - 1][y2 + 1].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
+		if (x2 <= game_board.size() && y2 - 1 <= game_board[x2].size())
+		{
+			if (game_board[x2][y2 - 1].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
+		if (x2 <= game_board.size() && y2 + 1 <= game_board[x2].size())
+		{
+			if (game_board[x2][y2 + 1].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
+		if (x2 + 1 <= game_board.size() && y2 - 1 <= game_board[x2 + 1].size())
+		{
+			if (game_board[x2 + 1][y2 - 1].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
+		if (x2 + 1 <= game_board.size() && y2 <= game_board[x2 + 1].size())
+		{
+			if (game_board[x2 + 1][y2].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
+		if (x2 + 1 <= game_board.size() && y2 + 1 <= game_board[x2 + 1].size())
+		{
+			if (game_board[x2 + 1][y2 + 1].get_type() == 'P')
+			{
+				game_board[x2][y2].add_power();
+			}
+		}
 
-	game_board[1].push_back(Pin('P', 'T', 1, 0));
-	game_board[1].push_back(Pin('S', 'R', 0, 0));
-	game_board[1].push_back(Pin('K', 'U', 0, 0));
-	game_board[1].push_back(Pin('S', 'R', 0, 0));
+		if (game_board[x][y].get_power() > game_board[x2][y2].get_power())
+		{
+			game_board[x][y].battle(game_board[x2][y2]);
+		}
+		else if (game_board[x][y].get_power() < game_board[x2][y2].get_power())
+		{
+			game_board[x2][y2].battle(game_board[x][y]);
+		}
+		else
+		{
+			cout << endl;
+			cout << "Both King's power are same , can't wage war" << endl;
+			game_board[x][y].reset_power();
+			game_board[x2][y2].reset_power();
+			return 1;
+		}
+		game_board[x][y].reset_power();
+		game_board[x2][y2].reset_power();
+	}
+	else 
+	{
+		cout << endl;
+		cout << "There is no King around ( " << x << ", " << y << " )!" << endl;
+		return 1;
+	}
 
-	game_board[2].push_back(Pin('S', 'E', 0, 0));
-	game_board[2].push_back(Pin('K', 'U', 0, 0));
-	game_board[2].push_back(Pin('S', 'E', 0, 0));
-	game_board[2].push_back(Pin('P', 'Y', 1, 0));
+	return 0;
+}
 
-	game_board[3].push_back(Pin('P', 'Y', 1, 0));
-	game_board[3].push_back(Pin('S', 'R', 0, 0));
-	game_board[3].push_back(Pin('P', 'Y', 1, 0));
-	game_board[3].push_back(Pin('S', 'R', 0, 0));
+void set_stageN()
+{
+	switch (STAGE) 
+	{
+	case 1:
+		for (int i = 0; i < 4; i++)
+		{
+			game_board.push_back(_game_board);
+		}
+
+		game_board[0].push_back(Pin('P', 'T', 1, 0));
+		game_board[0].push_back(Pin('S', 'R', 0, 0));
+		game_board[0].push_back(Pin('P', 'T', 1, 0));
+		game_board[0].push_back(Pin('P', 'Y', 1, 0));
+
+		game_board[1].push_back(Pin('P', 'T', 1, 0));
+		game_board[1].push_back(Pin('S', 'R', 0, 0));
+		game_board[1].push_back(Pin('K', 'U', 0, 0));
+		game_board[1].push_back(Pin('S', 'R', 0, 0));
+
+		game_board[2].push_back(Pin('S', 'E', 0, 0));
+		game_board[2].push_back(Pin('K', 'U', 0, 0));
+		game_board[2].push_back(Pin('S', 'E', 0, 0));
+		game_board[2].push_back(Pin('P', 'Y', 1, 0));
+
+		game_board[3].push_back(Pin('P', 'Y', 1, 0));
+		game_board[3].push_back(Pin('S', 'R', 0, 0));
+		game_board[3].push_back(Pin('P', 'Y', 1, 0));
+		game_board[3].push_back(Pin('S', 'R', 0, 0));
+		break;
+	case 2:
+		for (int i = 0; i < 3; i++) 
+		{
+			game_board.push_back(_game_board);
+		}
+
+		game_board[0].push_back(Pin('K', 'U', 0, 0));
+		game_board[0].push_back(Pin('S', 'R', 0, 0));
+		game_board[0].push_back(Pin('P', 'T', 1, 0));
+		game_board[0].push_back(Pin('P', 'Y', 1, 0));
+
+		game_board[1].push_back(Pin('P', 'T', 1, 0));
+		game_board[1].push_back(Pin('S', 'R', 0, 0));
+		game_board[1].push_back(Pin('K', 'U', 0, 0));
+		game_board[1].push_back(Pin('S', 'R', 0, 0));
+
+		game_board[2].push_back(Pin('S', 'E', 0, 0));
+		game_board[2].push_back(Pin('K', 'U', 0, 0));
+		game_board[2].push_back(Pin('S', 'E', 0, 0));
+		game_board[2].push_back(Pin('P', 'Y', 1, 0));
+		break;
+	default: 
+		break;
+	}
 }
 
 void print_stage()
 {
 	cout << endl;
+	cout << "#Stage[ " << STAGE << " ]" << endl;
+	cout << "----------" << endl;
 	for (int i = 0; i < game_board.size(); i++)
 	{
 		for (int j = 0; j < game_board[i].size(); j++)
@@ -479,5 +695,61 @@ void print_stage()
 		}
 		cout << endl;
 	}
+	cout << "----------" << endl;
 	cout << endl;
+}
+
+void check_stage() 
+{
+	int countK = 0;
+	int countS = 0;
+
+	for (int i = 0; i < game_board.size(); i++) 
+	{
+		for (int j = 0; j < game_board[i].size(); j++) 
+		{
+			if (game_board[i][j].get_type() == 'K') 
+			{
+				countK++;
+				if (i-1 <= game_board.size() && j <= game_board[i-1].size()) 
+				{
+					if (game_board[i - 1][j].get_type() == 'S') 
+					{
+						countS++;
+					}
+				}
+				if (i <= game_board.size() && j-1 <= game_board[i].size())
+				{
+					if (game_board[i][j-1].get_type() == 'S')
+					{
+						countS++;
+					}
+				}
+				if (i <= game_board.size() && j+1 <= game_board[i].size())
+				{
+					if (game_board[i][j+1].get_type() == 'S')
+					{
+						countS++;
+					}
+				}
+				if (i + 1 <= game_board.size() && j <= game_board[i + 1].size())
+				{
+					if (game_board[i + 1][j].get_type() == 'S')
+					{
+						countS++;
+					}
+				}
+			}
+		}
+	}
+
+	if (countK == 1 && countS == 4) 
+	{
+		cout << endl;
+		cout << "Stage clear" << endl;
+		cout << "Move on next stage." << endl;
+		cout << "This is test version" << endl;
+		sleep_until(system_clock::now() + 2s);
+		Game_Mode = 4;
+	}
 }
