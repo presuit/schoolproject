@@ -293,6 +293,7 @@ int move()
 		cout << "===================================" << endl;
 		cout << "1. Up  2. Left  3. Right  4. Down" << endl;
 		cout << "===================================" << endl;
+		cout << "5. back" << endl;
 		cin >> whereto;
 		switch (whereto)
 		{
@@ -371,6 +372,9 @@ int move()
 				cout << endl;
 				cout << "Not valid position!" << endl;
 			}
+			break;
+		case 5:
+			return 1;
 			break;
 		default:
 			cout << endl;
